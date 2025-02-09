@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Urania
+Exec=appurania
+Icon=maps-alt
+Type=Application
+Terminal=false
+Categories=Utility
