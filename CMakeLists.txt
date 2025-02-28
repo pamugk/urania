@@ -6,13 +6,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Dependency feature flags
-set(OSMSCOUT_BUILD_CLIENT OFF)
+set(OSMSCOUT_BUILD_CLIENT ON)
 set(OSMSCOUT_BUILD_CLIENT_QT OFF)
 set(OSMSCOUT_BUILD_DEMOS OFF)
 set(OSMSCOUT_BUILD_DOC_API OFF)
 set(OSMSCOUT_BUILD_GPX OFF)
 set(OSMSCOUT_BUILD_IMPORT OFF)
-set(OSMSCOUT_BUILD_MAP OFF)
+set(OSMSCOUT_BUILD_MAP ON)
 set(OSMSCOUT_BUILD_MAP_AGG OFF)
 set(OSMSCOUT_BUILD_MAP_CAIRO OFF)
 set(OSMSCOUT_BUILD_MAP_DIRECTX OFF)
@@ -33,6 +33,12 @@ include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
 include(ECMFindQmlModule)
 include(ECMQmlModule)
+remove_definitions(
+    -DQT_NO_CAST_FROM_BYTEARRAY
+    -DQT_NO_CAST_FROM_ASCII
+    -DQT_NO_CAST_TO_ASCII
+    -DQT_NO_KEYWORDS
+)
 
 find_package(Qt6 REQUIRED COMPONENTS
     Core
@@ -46,10 +52,8 @@ find_package(Qt6 REQUIRED COMPONENTS
 
 find_package(KF6 REQUIRED COMPONENTS
     Kirigami
-    I18n
     CoreAddons
     QQC2DesktopStyle
-    IconThemes
 )
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)

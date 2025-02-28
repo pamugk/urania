@@ -12,7 +12,7 @@ Kirigami.ApplicationWindow {
     width: 800
     height: 600
 
-    title: i18n("Urania")
+    title: "Urania"
 
     Plugin {
         id: mapPlugin
@@ -43,7 +43,7 @@ Kirigami.ApplicationWindow {
             id: map
 
             plugin: mapPlugin
-            center: QtPositioning.coordinate(59.91, 10.75)
+            center: QtPositioning.coordinate(55.751244, 37.618423)
             zoomLevel: 14
             property geoCoordinate startCentroid
 
