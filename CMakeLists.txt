@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Dependency feature flags
 set(OSMSCOUT_BUILD_CLIENT ON)
-set(OSMSCOUT_BUILD_CLIENT_QT OFF)
+set(OSMSCOUT_BUILD_CLIENT_QT ON)
 set(OSMSCOUT_BUILD_DEMOS OFF)
 set(OSMSCOUT_BUILD_DOC_API OFF)
 set(OSMSCOUT_BUILD_GPX OFF)
@@ -19,7 +19,7 @@ set(OSMSCOUT_BUILD_MAP_DIRECTX OFF)
 set(OSMSCOUT_BUILD_MAP_GDI OFF)
 set(OSMSCOUT_BUILD_MAP_IOSX OFF)
 set(OSMSCOUT_BUILD_MAP_OPENGL OFF)
-set(OSMSCOUT_BUILD_MAP_QT OFF)
+set(OSMSCOUT_BUILD_MAP_QT ON)
 set(OSMSCOUT_BUILD_MAP_SVG OFF)
 set(OSMSCOUT_BUILD_TESTS OFF)
 set(OSMSCOUT_BUILD_TOOL_DUMPDATA OFF)
@@ -30,7 +30,6 @@ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 include(KDEInstallDirs)
 include(KDECMakeSettings)
-include(KDECompilerSettings NO_POLICY_SCOPE)
 include(ECMFindQmlModule)
 include(ECMQmlModule)
 remove_definitions(
@@ -54,14 +53,13 @@ find_package(KF6 REQUIRED COMPONENTS
     Kirigami
     CoreAddons
     QQC2DesktopStyle
+    IconThemes
 )
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
 
 add_subdirectory(src)
 add_subdirectory(dependencies/libosmscout)
-
-target_compile_options(OSMScout PUBLIC -fexceptions)
 
 install(PROGRAMS com.github.pamugk.urania.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 

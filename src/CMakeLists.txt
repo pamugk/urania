@@ -1,3 +1,5 @@
+include(KDECompilerSettings NO_POLICY_SCOPE)
+
 add_executable(urania)
 
 ecm_add_qml_module(urania
@@ -20,6 +22,8 @@ target_link_libraries(urania
     PRIVATE
     OSMScout::OSMScout
     OSMScout::Map
+    OSMScout::MapQt
+    OSMScout::ClientQt
 
     Qt6::Quick
     Qt6::Qml
@@ -30,6 +34,7 @@ target_link_libraries(urania
     Qt6::Positioning
 
     KF6::CoreAddons
+    KF6::IconThemes
 )
 
 install(TARGETS urania ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

@@ -2,9 +2,11 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
+#include <KIconTheme>
 
 int main(int argc, char *argv[])
 {
+    KIconTheme::initTheme();
     QGuiApplication app(argc, argv);
     QGuiApplication::setApplicationName(QStringLiteral("Urania"));
     QGuiApplication::setDesktopFileName(QStringLiteral("com.github.pamugk.urania"));
