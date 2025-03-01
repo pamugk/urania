@@ -28,7 +28,7 @@ auto pos2(EventType *event)
 }
 
 MapWidget::MapWidget(QWidget *parent)
-    : QWidget{parent}
+    : QWidget(parent)
 {
     currentProjection.Set(
                 {0, 0}, 0.0,

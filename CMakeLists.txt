@@ -28,26 +28,12 @@ set(OSMSCOUT_BUILD_TOOL_OSMSCOUTOPENGL OFF)
 set(OSMSCOUT_BUILD_TOOL_PUBLICTRANSPORTMAP OFF)
 set(OSMSCOUT_BUILD_TOOL_STYLEEDITOR OFF)
 
-find_package(ECM 6.0.0 REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
-
-include(KDEInstallDirs)
-include(KDECMakeSettings)
-include(ECMFindQmlModule)
-include(ECMQmlModule)
-
 find_package(Qt6 REQUIRED COMPONENTS
-    Network
     Widgets
 )
-
-find_package(KF6 REQUIRED COMPONENTS
-    IconThemes
-)
+qt_standard_project_setup()
 
 add_subdirectory(src)
 add_subdirectory(dependencies/libosmscout)
-
-install(PROGRAMS com.github.pamugk.urania.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)

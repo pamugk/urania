@@ -1,21 +1,27 @@
-add_executable(urania)
-
-target_sources(urania
-    PRIVATE
+qt_add_executable(urania
     main.cpp
     mapwidget.h mapwidget.cpp
+    mainwindow.h mainwindow.cpp mainwindow.ui
 )
 
-target_link_libraries(urania
-    PRIVATE
+target_link_libraries(urania PRIVATE
     OSMScout::OSMScout
     OSMScout::Map
     OSMScout::MapQt
     OSMScout::ClientQt
 
     Qt6::Widgets
-
-    KF6::IconThemes
 )
 
-install(TARGETS urania ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS urania
+    BUNDLE  DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+qt_generate_deploy_app_script(
+    TARGET urania
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT ${deploy_script})

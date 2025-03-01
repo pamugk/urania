@@ -1,11 +1,10 @@
 #include <QApplication>
 #include <QStandardPaths>
 
-#include <KIconTheme>
-
 #include <osmscout/log/Logger.h>
+#include <osmscoutclientqt/OSMScoutQt.h>
 
-#include "mapwidget.h"
+#include "mainwindow.h"
 
 enum LogLevel
 {
@@ -42,7 +41,6 @@ static LogLevel parseLogLevel(const QString &env)
 
 int main(int argc, char *argv[])
 {
-    KIconTheme::initTheme();
     QApplication app(argc, argv);
     QApplication::setApplicationName(QStringLiteral("Urania"));
     QApplication::setDesktopFileName(QStringLiteral("com.github.pamugk.urania"));
@@ -87,11 +85,8 @@ int main(int argc, char *argv[])
     builder
         .WithStyleSheetDirectory(stylesheetFile.dir().path())
         .WithStyleSheetFile(stylesheetFile.fileName())
-        .WithIconDirectory(gitDir.absoluteFilePath("libosmscout/OSMScout2/pics"))
         .WithMapLookupDirectories(mapLookupDirectories)
         .AddOnlineTileProviders(gitDir.absoluteFilePath("libosmscout/OSMScout2/resources/online-tile-providers.json"))
-        .AddMapProviders(gitDir.absoluteFilePath("libosmscout/OSMScout2/resources/map-providers.json"))
-        .AddVoiceProviders(gitDir.absoluteFilePath("libosmscout/OSMScout2/resources/voice-providers.json"))
         .WithUserAgent(QApplication::applicationName(), QApplication::applicationVersion());
 
     if (!builder.Init())
@@ -100,7 +95,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    MapWidget map;
-    map.show();
+    MainWindow window;
+    window.show();
+
     return app.exec();
 }
