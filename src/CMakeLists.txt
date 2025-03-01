@@ -1,19 +1,9 @@
 add_executable(urania)
 
-ecm_add_qml_module(urania
-    URI
-    com.github.pamugk.urania
-)
-
 target_sources(urania
     PRIVATE
     main.cpp
-    geoapiclient.h geoapiclient.cpp
-)
-
-ecm_target_qml_sources(urania
-    SOURCES
-    Main.qml
+    mapwidget.h mapwidget.cpp
 )
 
 target_link_libraries(urania
@@ -23,15 +13,8 @@ target_link_libraries(urania
     OSMScout::MapQt
     OSMScout::ClientQt
 
-    Qt6::Quick
-    Qt6::Qml
-    Qt6::Gui
-    Qt6::QuickControls2
-    Qt6::Location
-    Qt6::Network
-    Qt6::Positioning
+    Qt6::Widgets
 
-    KF6::CoreAddons
     KF6::IconThemes
 )
 

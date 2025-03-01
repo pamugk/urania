@@ -37,23 +37,13 @@ include(ECMFindQmlModule)
 include(ECMQmlModule)
 
 find_package(Qt6 REQUIRED COMPONENTS
-    Core
-    Quick
-    Gui
-    QuickControls2
-    Location
     Network
-    Positioning
+    Widgets
 )
 
 find_package(KF6 REQUIRED COMPONENTS
-    Kirigami
-    CoreAddons
-    QQC2DesktopStyle
     IconThemes
 )
-
-ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
 
 add_subdirectory(src)
 add_subdirectory(dependencies/libosmscout)

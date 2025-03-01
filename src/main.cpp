@@ -1,95 +1,98 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QQuickStyle>
+#include <QApplication>
+#include <QStandardPaths>
 
 #include <KIconTheme>
 
-#include <osmscoutclientqt/OSMScoutQt.h>
 #include <osmscout/log/Logger.h>
 
-#define DEBUG_VALUE   4
-#define INFO_VALUE    3
-#define WARNING_VALUE 2
-#define ERROR_VALUE   1
+#include "mapwidget.h"
 
-static int LogEnv(const QString &env)
+enum LogLevel
+{
+    ERROR,
+    WARNING,
+    INFO,
+    DEBUG,
+};
+
+static LogLevel parseLogLevel(const QString &env)
 {
   if (env.toUpper() == "DEBUG")
   {
-    return DEBUG_VALUE;
+    return LogLevel::DEBUG;
   }
 
   if (env.toUpper() == "INFO")
   {
-    return INFO_VALUE;
+    return LogLevel::INFO;
   }
 
   if (env.toUpper() == "WARNING")
   {
-    return WARNING_VALUE;
+    return LogLevel::WARNING;
   }
 
   if (env.toUpper() == "ERROR")
   {
-    return ERROR_VALUE;
+    return LogLevel::ERROR;
   }
 
-  return WARNING_VALUE;
+  return LogLevel::WARNING;
 }
 
 int main(int argc, char *argv[])
 {
     KIconTheme::initTheme();
-    QGuiApplication app(argc, argv);
-    QGuiApplication::setApplicationName(QStringLiteral("Urania"));
-    QGuiApplication::setDesktopFileName(QStringLiteral("com.github.pamugk.urania"));
+    QApplication app(argc, argv);
+    QApplication::setApplicationName(QStringLiteral("Urania"));
+    QApplication::setDesktopFileName(QStringLiteral("com.github.pamugk.urania"));
 
     osmscout::OSMScoutQt::RegisterQmlTypes();
 
-    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE"))
-    {
-        QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
-    }
-
     QString logLevelName = QProcessEnvironment::systemEnvironment().value("OSMSCOUT_LOG", "WARNING");
 
-    std::cout << "Setting libosmscout logging to level: " << logLevelName.toStdString() << std::endl;
+    qDebug() << "Setting libosmscout logging to level: " << logLevelName << '\n';
 
-    int logEnv=LogEnv(logLevelName);
+    LogLevel logEnv = parseLogLevel(logLevelName);
 
-    osmscout::log.Debug(logEnv >= DEBUG_VALUE);
-    osmscout::log.Info(logEnv >= INFO_VALUE);
-    osmscout::log.Warn(logEnv >= WARNING_VALUE);
-    osmscout::log.Error(logEnv >= ERROR_VALUE);
+    osmscout::log.Debug(logEnv >= LogLevel::DEBUG);
+    osmscout::log.Info(logEnv >= LogLevel::INFO);
+    osmscout::log.Warn(logEnv >= LogLevel::WARNING);
+    osmscout::log.Error(logEnv >= LogLevel::ERROR);
 
     osmscout::OSMScoutQtBuilder builder = osmscout::OSMScoutQt::NewInstance();
 
+    auto mapsDir = QDir(QStandardPaths::locate(QStandardPaths::HomeLocation,
+                                               QStringLiteral("Карты"),
+                                               QStandardPaths::LocateDirectory));
+    QDir dbDir(mapsDir.absoluteFilePath("volga-fed-district"));
     QStringList mapLookupDirectories;
 
-    mapLookupDirectories << QStringLiteral("/mnt/storage/admin/Maps/russia");
+    mapLookupDirectories << dbDir.canonicalPath();
 
-    QDir dir(QStringLiteral("/mnt/storage/admin/Maps/russia"));
 
-    if (dir.cdUp())
+    if (dbDir.cdUp())
     {
-        if (dir.cd("world"))
+        if (dbDir.cd("world"))
         {
-          builder.WithBasemapLookupDirectory(dir.absolutePath());
+          builder.WithBasemapLookupDirectory(dbDir.absolutePath());
         }
     }
 
-    QFileInfo stylesheetFile("/home/admin/git/libosmscout/stylesheets/standard.oss");
+    auto gitDir = QDir(QStandardPaths::locate(QStandardPaths::HomeLocation,
+                                          QStringLiteral("git"),
+                                          QStandardPaths::LocateDirectory));
+    QFileInfo stylesheetFile(gitDir.absoluteFilePath("libosmscout/stylesheets/standard.oss"));
 
     builder
         .WithStyleSheetDirectory(stylesheetFile.dir().path())
         .WithStyleSheetFile(stylesheetFile.fileName())
-        .WithIconDirectory(QStringLiteral("/home/admin/git/libosmscout/OSMScout2/pics"))
+        .WithIconDirectory(gitDir.absoluteFilePath("libosmscout/OSMScout2/pics"))
         .WithMapLookupDirectories(mapLookupDirectories)
-        .AddOnlineTileProviders("/home/admin/git/libosmscout/OSMScout2/resources/online-tile-providers.json")
-        .AddMapProviders("/home/admin/git/libosmscout/OSMScout2/resources/map-providers.json")
-        .AddVoiceProviders("/home/admin/git/libosmscout/OSMScout2/resources/voice-providers.json")
-        .WithUserAgent("OSMScout2DemoApp", "v1");
+        .AddOnlineTileProviders(gitDir.absoluteFilePath("libosmscout/OSMScout2/resources/online-tile-providers.json"))
+        .AddMapProviders(gitDir.absoluteFilePath("libosmscout/OSMScout2/resources/map-providers.json"))
+        .AddVoiceProviders(gitDir.absoluteFilePath("libosmscout/OSMScout2/resources/voice-providers.json"))
+        .WithUserAgent(QApplication::applicationName(), QApplication::applicationVersion());
 
     if (!builder.Init())
     {
@@ -97,16 +100,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    int result = 0;
-    {
-        QQmlApplicationEngine engine;
-        QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
-                         &app, []() { QCoreApplication::exit(-1); },
-                         Qt::QueuedConnection);
-        engine.loadFromModule("com.github.pamugk.urania", "Main");
-        result = app.exec();
-    }
-    osmscout::OSMScoutQt::FreeInstance();
-
-    return result;
+    MapWidget map;
+    map.show();
+    return app.exec();
 }
