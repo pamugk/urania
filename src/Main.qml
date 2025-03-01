@@ -3,8 +3,12 @@ import QtQuick.Layouts
 import QtQuick.Controls as Controls
 import QtLocation
 import QtPositioning
+
 import org.kde.kirigami as Kirigami
+
 import com.github.pamugk.urania as Urania
+
+//import net.sf.libosmscout.map 1.0
 
 Kirigami.ApplicationWindow {
     id: root

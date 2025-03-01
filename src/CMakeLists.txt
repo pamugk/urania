@@ -1,5 +1,3 @@
-include(KDECompilerSettings NO_POLICY_SCOPE)
-
 add_executable(urania)
 
 ecm_add_qml_module(urania
