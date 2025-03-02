@@ -3,31 +3,13 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 
-// TODO: add new features to this code
-// from QtWidgetsDemoApp libosmscout example example.
-
-namespace
-{
-// used with QWheelEvent
-template <typename EventType>
-auto pos(EventType *event)
-{
-    return event->position().toPoint();
-}
-
-// used with QMouseEvent
-template <typename EventType>
-auto pos2(EventType *event)
-{
-    return event->position().toPoint();
-}
-}
-
 MapWidget::MapWidget(QWidget *parent)
     : QWidget(parent),
       maxZoom(osmscout::Magnification{osmscout::Magnification::magHouse}),
       minZoom(osmscout::Magnification{osmscout::Magnification::magContinent})
 {
+    setFocusPolicy(Qt::StrongFocus);
+
     if (!currentProjection.Set(
         {0, 0}, 0.0,
         osmscout::Magnification{osmscout::Magnification::magContinent},
@@ -43,7 +25,91 @@ MapWidget::MapWidget(QWidget *parent)
 
 MapWidget::~MapWidget()
 {
+    osmscout::OSMScoutQt::FreeInstance();
+}
 
+void MapWidget::keyPressEvent(QKeyEvent *event)
+{
+    bool updatedModel = false;
+    switch (event->key())
+    {
+        // Navigation
+        case Qt::Key::Key_Left:
+        {
+            updatedModel = currentProjection.Move(-width() / 100., 0);
+            break;
+        }
+        case Qt::Key::Key_Up:
+        {
+            updatedModel = currentProjection.Move(0, height() / 100.);
+            break;
+        }
+        case Qt::Key::Key_Right:
+        {
+            updatedModel = currentProjection.Move(width() / 100., 0);
+            break;
+        }
+        case Qt::Key::Key_Down:
+        {
+            updatedModel = currentProjection.Move(0, -height() / 100.);
+            break;
+        }
+        // Zoom
+        case Qt::Key::Key_Minus:
+        {
+            if (currentProjection.GetMagnification() > minZoom)
+            {
+                updatedModel = currentProjection.Set(
+                    currentProjection.GetCenter(),
+                    osmscout::Magnification{osmscout::MagnificationLevel{currentProjection.GetMagnification().GetLevel() - 1}},
+                    static_cast<size_t>(width()), static_cast<size_t>(height())
+                );
+            }
+            break;
+        }
+        case Qt::Key::Key_Plus:
+        {
+            if (currentProjection.GetMagnification() < maxZoom)
+            {
+                updatedModel = currentProjection.Set(
+                    currentProjection.GetCenter(),
+                    osmscout::Magnification{osmscout::MagnificationLevel{currentProjection.GetMagnification().GetLevel() + 1}},
+                    static_cast<size_t>(width()), static_cast<size_t>(height())
+                );
+            }
+            break;
+        }
+        default:
+        {
+            QWidget::keyPressEvent(event);
+        }
+    }
+
+    if (updatedModel)
+    {
+        update();
+    }
+}
+
+void MapWidget::mousePressEvent(QMouseEvent *event)
+{
+    lastMousePosition = event->position().toPoint();
+}
+
+void MapWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    auto eventPoint = event->position().toPoint();
+    auto x_delta = eventPoint.x() - lastMousePosition.x();
+    auto y_delta = eventPoint.y() - lastMousePosition.y();
+    if (currentProjection.Move(-x_delta, y_delta))
+    {
+        update();
+    }
+    else
+    {
+        qDebug() << "Something went wrong during projection move";
+    }
+    lastMousePosition = eventPoint;
 }
 
 void MapWidget::paintEvent(QPaintEvent *event)
@@ -67,26 +133,11 @@ void MapWidget::paintEvent(QPaintEvent *event)
     );
 }
 
-void MapWidget::mousePressEvent(QMouseEvent *event)
-{
-    lastMousePosition = ::pos2(event);
-}
-
-void MapWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    auto x_delta = ::pos2(event).x() - lastMousePosition.x();
-    auto y_delta = ::pos2(event).y() - lastMousePosition.y();
-    if (!currentProjection.Move(-x_delta, y_delta))
-    {
-        qDebug() << "Something went wrong during projection move";
-    }
-    lastMousePosition = ::pos2(event);
-    update();
-}
-
 void MapWidget::wheelEvent(QWheelEvent *event)
 {
     uint32_t magnificationDelta;
+    bool updatedModel = false;
+    auto eventPoint = event->position().toPoint();
     if (event->angleDelta().y() > 0)
     {
         if (currentProjection.GetMagnification() >= maxZoom)
@@ -94,9 +145,13 @@ void MapWidget::wheelEvent(QWheelEvent *event)
             return;
         }
         magnificationDelta = 1;
-        auto x_delta = (width() / 2. - ::pos(event).x()) * 0.75;
-        auto y_delta = (height() / 2. - ::pos(event).y()) * 0.75;
-        if (!currentProjection.Move(-x_delta, y_delta))
+        auto x_delta = (width() / 2. - eventPoint.x()) * 0.75;
+        auto y_delta = (height() / 2. - eventPoint.y()) * 0.75;
+        if (currentProjection.Move(-x_delta, y_delta))
+        {
+            updatedModel = true;
+        }
+        else
         {
             qDebug() << "Something went wrong during projection move";
         }
@@ -108,21 +163,33 @@ void MapWidget::wheelEvent(QWheelEvent *event)
             return;
         }
         magnificationDelta = -1;
-        auto x_delta = (width() / 2. - ::pos(event).x()) * 0.75;
-        auto y_delta = (height() / 2. - ::pos(event).y()) * 0.75;
-        if (!currentProjection.Move(x_delta, -y_delta))
+        auto x_delta = (width() / 2. - eventPoint.x()) * 0.75;
+        auto y_delta = (height() / 2. - eventPoint.y()) * 0.75;
+        if (currentProjection.Move(x_delta, -y_delta))
+        {
+            updatedModel = true;
+        }
+        else
         {
             qDebug() << "Something went wrong during projection move";
         }
     }
 
-    if (!currentProjection.Set(
+    if (currentProjection.Set(
         currentProjection.GetCenter(),
         osmscout::Magnification{osmscout::MagnificationLevel{currentProjection.GetMagnification().GetLevel() + magnificationDelta}},
         static_cast<size_t>(width()), static_cast<size_t>(height())
     ))
     {
+        updatedModel = true;
+    }
+    else
+    {
         qDebug() << "Something went wrong on magnification level update";
     }
-    update();
+
+    if (updatedModel)
+    {
+        update();
+    }
 }

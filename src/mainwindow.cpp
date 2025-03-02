@@ -65,5 +65,7 @@ bool configureMap(const QString &mapsPath, const QString &styleSheetPath)
         .WithStyleSheetDirectory(stylesheetFile.dir().path())
         .WithStyleSheetFile(stylesheetFile.fileName())
         .WithBasemapLookupDirectory(mapsPath)
-        .WithMapLookupDirectories({mapsPath}).Init();
+        .WithMapLookupDirectories({mapsPath})
+        .WithUserAgent(QApplication::applicationName(), QApplication::applicationVersion())
+        .Init();
 }
