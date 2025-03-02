@@ -5,7 +5,6 @@
 
 const auto MAX_ZOOM = 20;
 const auto MIN_ZOOM = 0;
-const auto MAP_DPI = 96;
 
 // TODO: add new features to this code
 // from QtWidgetsDemoApp libosmscout example example.
@@ -33,11 +32,16 @@ MapWidget::MapWidget(QWidget *parent)
     currentProjection.Set(
                 {0, 0}, 0.0,
                 osmscout::Magnification{osmscout::Magnification::magWorld},
-                MAP_DPI,
-                width(), height()
+                logicalDpiX(),
+                400, 400
     );
-    renderer = osmscout::OSMScoutQt::GetInstance().MakeMapRenderer(osmscout::RenderingType::TiledRendering);
+    renderer = osmscout::OSMScoutQt::GetInstance().MakeMapRenderer(osmscout::RenderingType::PlaneRendering);
     connect(renderer, &osmscout::MapRenderer::Redraw, this, [this] { update(); });
+}
+
+MapWidget::~MapWidget()
+{
+
 }
 
 void MapWidget::paintEvent(QPaintEvent *event)
@@ -56,7 +60,7 @@ void MapWidget::paintEvent(QPaintEvent *event)
                     currentProjection.GetMagnification(),
                     static_cast<size_t>(width()),
                     static_cast<size_t>(height()),
-                    MAP_DPI,
+                    static_cast<double>(logicalDpiX()),
                 }
     );
 }

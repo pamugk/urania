@@ -10,6 +10,7 @@ class MapWidget : public QWidget
     Q_OBJECT
 public:
     explicit MapWidget(QWidget *parent = nullptr);
+    ~MapWidget();
 
 protected:
     void paintEvent(QPaintEvent *event) override;

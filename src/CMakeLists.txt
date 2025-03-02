@@ -2,6 +2,7 @@ qt_add_executable(urania
     main.cpp
     mapwidget.h mapwidget.cpp
     mainwindow.h mainwindow.cpp mainwindow.ui
+    startuppage.h startuppage.cpp startuppage.ui
 )
 
 target_link_libraries(urania PRIVATE
