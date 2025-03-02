@@ -10,16 +10,16 @@ StartupPage::StartupPage(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->chooseMapFolderButton, &QPushButton::clicked,
+    connect(ui->chooseMapsFolderButton, &QPushButton::clicked,
             this, [this]()
     {
-        auto mapFolderPath = QFileDialog::getExistingDirectory(this,
-            tr("Select Map Folder"),
+        auto mapsFolderPath = QFileDialog::getExistingDirectory(this,
+            tr("Select Maps Folder"),
             QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
-        if (!mapFolderPath.isNull())
+        if (!mapsFolderPath.isNull())
         {
-            selectedMapFolderPath = mapFolderPath;
-            ui->mapFolderLineEdit->setText(mapFolderPath);
+            selectedMapsFolderPath = mapsFolderPath;
+            ui->mapsFolderLineEdit->setText(mapsFolderPath);
             ui->okButton->setEnabled(!selectedStyleSheetFilePath.isEmpty());
         }
     });
@@ -34,13 +34,13 @@ StartupPage::StartupPage(QWidget *parent) :
         {
             selectedStyleSheetFilePath = styleSheetFilePath;
             ui->stylesheetLineEdit->setText(styleSheetFilePath);
-            ui->okButton->setEnabled(!selectedMapFolderPath.isEmpty());
+            ui->okButton->setEnabled(!selectedMapsFolderPath.isEmpty());
         }
     });
     connect(ui->okButton, &QPushButton::clicked,
             this, [this]()
     {
-        emit mapConfigured(selectedMapFolderPath, selectedStyleSheetFilePath);
+        emit mapConfigured(selectedMapsFolderPath, selectedStyleSheetFilePath);
     });
 }
 

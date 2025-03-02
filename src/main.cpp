@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::setApplicationName(QStringLiteral("Urania"));
+    QApplication::setOrganizationDomain(QStringLiteral("pamugk.github.com"));
     QApplication::setDesktopFileName(QStringLiteral("com.github.pamugk.urania"));
 
     QSettings appSettings;

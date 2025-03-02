@@ -3,9 +3,6 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 
-const auto MAX_ZOOM = 20;
-const auto MIN_ZOOM = 0;
-
 // TODO: add new features to this code
 // from QtWidgetsDemoApp libosmscout example example.
 
@@ -27,14 +24,19 @@ auto pos2(EventType *event)
 }
 
 MapWidget::MapWidget(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      maxZoom(osmscout::Magnification{osmscout::Magnification::magHouse}),
+      minZoom(osmscout::Magnification{osmscout::Magnification::magContinent})
 {
-    currentProjection.Set(
-                {0, 0}, 0.0,
-                osmscout::Magnification{osmscout::Magnification::magWorld},
-                logicalDpiX(),
-                400, 400
-    );
+    if (!currentProjection.Set(
+        {0, 0}, 0.0,
+        osmscout::Magnification{osmscout::Magnification::magContinent},
+        logicalDpiX(),
+        static_cast<size_t>(400), static_cast<size_t>(400)
+    ))
+    {
+        qDebug() << "Something went wrong on projection setup";
+    }
     renderer = osmscout::OSMScoutQt::GetInstance().MakeMapRenderer(osmscout::RenderingType::PlaneRendering);
     connect(renderer, &osmscout::MapRenderer::Redraw, this, [this] { update(); });
 }
@@ -74,40 +76,53 @@ void MapWidget::mouseMoveEvent(QMouseEvent *event)
 {
     auto x_delta = ::pos2(event).x() - lastMousePosition.x();
     auto y_delta = ::pos2(event).y() - lastMousePosition.y();
-    currentProjection.Move(-x_delta, y_delta);
+    if (!currentProjection.Move(-x_delta, y_delta))
+    {
+        qDebug() << "Something went wrong during projection move";
+    }
     lastMousePosition = ::pos2(event);
     update();
 }
 
 void MapWidget::wheelEvent(QWheelEvent *event)
 {
-    auto magnification = currentProjection.GetMagnification().GetLevel();
+    uint32_t magnificationDelta;
     if (event->angleDelta().y() > 0)
     {
-        if (magnification >= MAX_ZOOM)
+        if (currentProjection.GetMagnification() >= maxZoom)
         {
             return;
         }
-        magnification++;
+        magnificationDelta = 1;
         auto x_delta = (width() / 2. - ::pos(event).x()) * 0.75;
         auto y_delta = (height() / 2. - ::pos(event).y()) * 0.75;
-        currentProjection.Move(-x_delta, y_delta);
+        if (!currentProjection.Move(-x_delta, y_delta))
+        {
+            qDebug() << "Something went wrong during projection move";
+        }
     }
     else
     {
-        if (magnification <= MIN_ZOOM)
+        if (currentProjection.GetMagnification() <= minZoom)
         {
             return;
         }
-        magnification--;
+        magnificationDelta = -1;
         auto x_delta = (width() / 2. - ::pos(event).x()) * 0.75;
         auto y_delta = (height() / 2. - ::pos(event).y()) * 0.75;
-        currentProjection.Move(x_delta, -y_delta);
+        if (!currentProjection.Move(x_delta, -y_delta))
+        {
+            qDebug() << "Something went wrong during projection move";
+        }
     }
-    currentProjection.Set(
-                currentProjection.GetCenter(),
-                osmscout::Magnification{osmscout::MagnificationLevel{magnification}},
-                width(), height()
-    );
+
+    if (!currentProjection.Set(
+        currentProjection.GetCenter(),
+        osmscout::Magnification{osmscout::MagnificationLevel{currentProjection.GetMagnification().GetLevel() + magnificationDelta}},
+        static_cast<size_t>(width()), static_cast<size_t>(height())
+    ))
+    {
+        qDebug() << "Something went wrong on magnification level update";
+    }
     update();
 }

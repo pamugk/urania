@@ -16,11 +16,11 @@ public:
     ~StartupPage();
 
 signals:
-    void mapConfigured(const QString &mapDirectory,
+    void mapConfigured(const QString &mapsDirectory,
                        const QString &styleSheetFile);
 
 private:
-    QString selectedMapFolderPath;
+    QString selectedMapsFolderPath;
     QString selectedStyleSheetFilePath;
     Ui::StartupPage *ui;
 };

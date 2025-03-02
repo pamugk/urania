@@ -22,7 +22,7 @@
         <widget class="QWidget" name="formWidget" native="true">
          <layout class="QFormLayout" name="formLayout">
           <item row="0" column="0">
-           <widget class="QLabel" name="mapFolderLabel">
+           <widget class="QLabel" name="mapsFolderLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -30,7 +30,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Map folder:</string>
+             <string>Maps folder:</string>
             </property>
            </widget>
           </item>
@@ -38,17 +38,17 @@
            <widget class="QWidget" name="horizontalWidget" native="true">
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <widget class="QLineEdit" name="mapFolderLineEdit">
+              <widget class="QLineEdit" name="mapsFolderLineEdit">
                <property name="readOnly">
                 <bool>true</bool>
                </property>
                <property name="placeholderText">
-                <string>Map folder not selected</string>
+                <string>Maps folder not selected</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="chooseMapFolderButton">
+              <widget class="QPushButton" name="chooseMapsFolderButton">
                <property name="text">
                 <string/>
                </property>

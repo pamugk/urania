@@ -19,6 +19,8 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
+    const osmscout::Magnification maxZoom;
+    const osmscout::Magnification minZoom;
     osmscout::MapRenderer* renderer;
     osmscout::MercatorProjection currentProjection;
     QPoint lastMousePosition;

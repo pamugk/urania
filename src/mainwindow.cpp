@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <osmscoutclientqt/OSMScoutQt.h>
-
 #include <QSettings>
 
 #include "mapwidget.h"
@@ -19,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     osmscout::OSMScoutQt::RegisterQmlTypes();
 
     QSettings appSettings;
-    auto selectedMapFolder = appSettings.value(QLatin1StringView("libosmscout/mapFolder")).toString();
+    auto selectedMapFolder = appSettings.value(QLatin1StringView("libosmscout/mapsFolder")).toString();
     auto selecteStyleSheet = appSettings.value(QLatin1StringView("libosmscout/styleSheet")).toString();
 
     bool mapConfigured = false;
@@ -36,12 +34,12 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         auto startUpPage = new StartupPage(this);
         connect(startUpPage, &StartupPage::mapConfigured,
-                this, [this](const QString &mapPath, const QString &styleSheetPath)
+                this, [this](const QString &mapsPath, const QString &styleSheetPath)
         {
-            if (configureMap(mapPath, styleSheetPath))
+            if (configureMap(mapsPath, styleSheetPath))
             {
                 QSettings appSettings;
-                appSettings.setValue(QLatin1StringView("libosmscout/mapFolder"), mapPath);
+                appSettings.setValue(QLatin1StringView("libosmscout/mapsFolder"), mapsPath);
                 appSettings.setValue(QLatin1StringView("libosmscout/styleSheet"), styleSheetPath);
                 setCentralWidget(new MapWidget(this));
             }
@@ -59,30 +57,13 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool configureMap(const QString &mapPath, const QString &styleSheetPath)
+bool configureMap(const QString &mapsPath, const QString &styleSheetPath)
 {
-    osmscout::OSMScoutQtBuilder builder = osmscout::OSMScoutQt::NewInstance();
-
-    QDir dbDir(mapPath);
-    QStringList mapLookupDirectories;
-
-    mapLookupDirectories << dbDir.canonicalPath();
-
-    if (dbDir.cdUp())
-    {
-        if (dbDir.cd("world"))
-        {
-          builder.WithBasemapLookupDirectory(dbDir.absolutePath());
-        }
-    }
-
     QFileInfo stylesheetFile(styleSheetPath);
-
-    builder
+    QSettings appSettings;
+    return osmscout::OSMScoutQt::NewInstance()
         .WithStyleSheetDirectory(stylesheetFile.dir().path())
         .WithStyleSheetFile(stylesheetFile.fileName())
-        //.WithMapLookupDirectories(mapLookupDirectories)
-        ;
-
-    return builder.Init();
+        .WithBasemapLookupDirectory(mapsPath)
+        .WithMapLookupDirectories({mapsPath}).Init();
 }
