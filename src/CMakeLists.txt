@@ -1,7 +1,10 @@
 qt_add_executable(urania
     main.cpp
-    mapwidget.h mapwidget.cpp
+
     mainwindow.h mainwindow.cpp mainwindow.ui
+
+    mappage.h mappage.cpp mappage.ui
+    mapwidget.h mapwidget.cpp
     startuppage.h startuppage.cpp startuppage.ui
 )
 

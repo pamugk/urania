@@ -12,6 +12,10 @@ public:
     explicit MapWidget(QWidget *parent = nullptr);
     ~MapWidget();
 
+public slots:
+    void zoomIn();
+    void zoomOut();
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -25,6 +29,9 @@ private:
     osmscout::MapRenderer* renderer;
     osmscout::MercatorProjection currentProjection;
     QPoint lastMousePosition;
+
+    bool zoomInImplementation();
+    bool zoomOutImplementation();
 };
 
 #endif // MAPWIDGET_H

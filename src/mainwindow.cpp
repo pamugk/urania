@@ -2,8 +2,9 @@
 #include "ui_mainwindow.h"
 
 #include <QSettings>
+#include <osmscoutclientqt/OSMScoutQt.h>
 
-#include "mapwidget.h"
+#include "mappage.h"
 #include "startuppage.h"
 
 static bool configureMap(const QString &mapPath, const QString &styleSheetPath);
@@ -28,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if (mapConfigured)
     {
-        setCentralWidget(new MapWidget(this));
+        setCentralWidget(new MapPage(this));
     }
     else
     {
@@ -41,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 QSettings appSettings;
                 appSettings.setValue(QLatin1StringView("libosmscout/mapsFolder"), mapsPath);
                 appSettings.setValue(QLatin1StringView("libosmscout/styleSheet"), styleSheetPath);
-                setCentralWidget(new MapWidget(this));
+                setCentralWidget(new MapPage(this));
             }
             else
             {

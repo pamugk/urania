@@ -28,6 +28,22 @@ MapWidget::~MapWidget()
     osmscout::OSMScoutQt::FreeInstance();
 }
 
+void MapWidget::zoomIn()
+{
+    if (zoomInImplementation())
+    {
+        update();
+    }
+}
+
+void MapWidget::zoomOut()
+{
+    if (zoomOutImplementation())
+    {
+        update();
+    }
+}
+
 void MapWidget::keyPressEvent(QKeyEvent *event)
 {
     bool updatedModel = false;
@@ -57,26 +73,12 @@ void MapWidget::keyPressEvent(QKeyEvent *event)
         // Zoom
         case Qt::Key::Key_Minus:
         {
-            if (currentProjection.GetMagnification() > minZoom)
-            {
-                updatedModel = currentProjection.Set(
-                    currentProjection.GetCenter(),
-                    osmscout::Magnification{osmscout::MagnificationLevel{currentProjection.GetMagnification().GetLevel() - 1}},
-                    static_cast<size_t>(width()), static_cast<size_t>(height())
-                );
-            }
+            updatedModel = zoomOutImplementation();
             break;
         }
         case Qt::Key::Key_Plus:
         {
-            if (currentProjection.GetMagnification() < maxZoom)
-            {
-                updatedModel = currentProjection.Set(
-                    currentProjection.GetCenter(),
-                    osmscout::Magnification{osmscout::MagnificationLevel{currentProjection.GetMagnification().GetLevel() + 1}},
-                    static_cast<size_t>(width()), static_cast<size_t>(height())
-                );
-            }
+            updatedModel = zoomInImplementation();
             break;
         }
         default:
@@ -192,4 +194,30 @@ void MapWidget::wheelEvent(QWheelEvent *event)
     {
         update();
     }
+}
+
+bool MapWidget::zoomInImplementation()
+{
+    if (currentProjection.GetMagnification() < maxZoom)
+    {
+        return currentProjection.Set(
+            currentProjection.GetCenter(),
+            osmscout::Magnification{osmscout::MagnificationLevel{currentProjection.GetMagnification().GetLevel() + 1}},
+            static_cast<size_t>(width()), static_cast<size_t>(height())
+        );
+    }
+    return false;
+}
+
+bool MapWidget::zoomOutImplementation()
+{
+    if (currentProjection.GetMagnification() > minZoom)
+    {
+        return currentProjection.Set(
+            currentProjection.GetCenter(),
+            osmscout::Magnification{osmscout::MagnificationLevel{currentProjection.GetMagnification().GetLevel() - 1}},
+            static_cast<size_t>(width()), static_cast<size_t>(height())
+        );
+    }
+    return false;
 }
