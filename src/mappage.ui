@@ -151,7 +151,6 @@
      <layout class="QVBoxLayout" name="infoPaneLayout">
       <item>
        <widget class="QStackedWidget" name="infoPaneStack">
-        <widget class="QWidget" name="infoPaneResultsPage"/>
         <widget class="QWidget" name="infoPaneSearchPage">
          <layout class="QVBoxLayout" name="infoPaneSearchPageLayout">
           <property name="spacing">
@@ -232,6 +231,65 @@
               </widget>
              </item>
             </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QStackedWidget" name="searchResultsStack">
+            <widget class="QWidget" name="searchResultsInitialPage">
+             <layout class="QVBoxLayout" name="searchResultsInitialPageLayout">
+              <item>
+               <widget class="QLabel" name="searchResultsInitialLabel">
+                <property name="text">
+                 <string>Try typing something into a search bar</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="searchResultsDataPage">
+             <layout class="QVBoxLayout" name="searchResultsDataPageLayout">
+              <item>
+               <widget class="QListView" name="searchResultsListView"/>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="searchResultsNothingFoundPage">
+             <layout class="QVBoxLayout" name="searchResultsNothingFoundPageLayout">
+              <item>
+               <widget class="QLabel" name="searchResultsNothingFoundLabel">
+                <property name="text">
+                 <string>Nothing Found</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="searchResultsLoadingPage">
+             <layout class="QVBoxLayout" name="searchResultsLoadingPageLayout">
+              <property name="leftMargin">
+               <number>30</number>
+              </property>
+              <property name="rightMargin">
+               <number>30</number>
+              </property>
+              <item>
+               <widget class="QProgressBar" name="searchResultsProgressBar">
+                <property name="maximum">
+                 <number>0</number>
+                </property>
+                <property name="value">
+                 <number>-1</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
          </layout>
