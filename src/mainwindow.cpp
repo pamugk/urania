@@ -14,6 +14,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connect(ui->exitAction, &QAction::triggered,
+            this, []{ QApplication::exit(); });
+    connect(ui->aboutQtAction, &QAction::triggered,
+            this, []{ QApplication::aboutQt(); });
 
     osmscout::OSMScoutQt::RegisterQmlTypes();
 

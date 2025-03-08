@@ -10,11 +10,16 @@ MapWidget::MapWidget(QWidget *parent)
 {
     setFocusPolicy(Qt::StrongFocus);
 
+    if (parent != nullptr)
+    {
+        setFixedSize(parent->width(), parent->height());
+    }
+
     if (!currentProjection.Set(
         {0, 0}, 0.0,
         osmscout::Magnification{osmscout::Magnification::magContinent},
         logicalDpiX(),
-        static_cast<size_t>(400), static_cast<size_t>(400)
+        static_cast<size_t>(width()), static_cast<size_t>(height())
     ))
     {
         qDebug() << "Something went wrong on projection setup";
