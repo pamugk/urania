@@ -1,30 +1,67 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QQuickStyle>
-#include <KLocalizedContext>
-#include <KLocalizedString>
-#include <KIconTheme>
+#include <QApplication>
+#include <QSettings>
+
+#include <osmscout/log/Logger.h>
+
+enum LogLevel
+{
+    ERROR,
+    WARNING,
+    INFO,
+    DEBUG,
+};
+
+static LogLevel parseLogLevel(const QString &logLevel)
+{
+    auto upperCaseLogLevel = logLevel.toUpper();
+    if (upperCaseLogLevel == "DEBUG")
+    {
+        return LogLevel::DEBUG;
+    }
+
+    if (upperCaseLogLevel == "INFO")
+    {
+        return LogLevel::INFO;
+    }
+
+    if (upperCaseLogLevel == "WARNING")
+    {
+        return LogLevel::WARNING;
+    }
+
+    if (upperCaseLogLevel == "ERROR")
+    {
+        return LogLevel::ERROR;
+    }
+
+    return LogLevel::WARNING;
+}
+
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
-    KIconTheme::initTheme();
-    QGuiApplication app(argc, argv);
-    KLocalizedString::setApplicationDomain("urania");
-    QGuiApplication::setApplicationName(QStringLiteral("Urania"));
-    QGuiApplication::setDesktopFileName(QStringLiteral("com.github.pamugk.urania"));
+    QApplication app(argc, argv);
+    QApplication::setApplicationName(QStringLiteral("Urania"));
+    QApplication::setOrganizationDomain(QStringLiteral("pamugk.github.com"));
+    QApplication::setDesktopFileName(QStringLiteral("com.github.pamugk.urania"));
 
-    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
-        QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
-    }
+    QSettings appSettings;
+    QString logLevelName = appSettings.value(QLatin1StringView("libosmscout/logLevel"),
+                                             QStringLiteral("WARNING")
+    ).toString();
 
-    QQmlApplicationEngine engine;
-    engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
-    engine.loadFromModule("com.github.pamugk.urania", "Main");
+    qDebug() << "Setting libosmscout logging to level: " << logLevelName << '\n';
 
-    if (engine.rootObjects().isEmpty()) {
-        return -1;
-    }
+    LogLevel logEnv = parseLogLevel(logLevelName);
+
+    osmscout::log.Debug(logEnv >= LogLevel::DEBUG);
+    osmscout::log.Info(logEnv >= LogLevel::INFO);
+    osmscout::log.Warn(logEnv >= LogLevel::WARNING);
+    osmscout::log.Error(logEnv >= LogLevel::ERROR);
+
+    MainWindow window;
+    window.show();
 
     return app.exec();
 }

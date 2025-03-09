@@ -1,0 +1,3 @@
+[submodule "dependencies/libosmscout"]
+	path = dependencies/libosmscout
+	url = https://github.com/Framstag/libosmscout.git

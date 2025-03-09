@@ -1,37 +1,31 @@
-add_executable(appurania)
-
-ecm_add_qml_module(appurania
-    URI
-    com.github.pamugk.urania
-)
-
-target_sources(appurania
-    PRIVATE
+qt_add_executable(urania
     main.cpp
-    geoapiclient.h geoapiclient.cpp
+
+    mainwindow.h mainwindow.cpp mainwindow.ui
+
+    mappage.h mappage.cpp mappage.ui
+    mapwidget.h mapwidget.cpp
+    startuppage.h startuppage.cpp startuppage.ui
 )
 
-ecm_target_qml_sources(appurania
-    SOURCES
-    Main.qml
+target_link_libraries(urania PRIVATE
+    OSMScout::OSMScout
+    OSMScout::Map
+    OSMScout::MapQt
+    OSMScout::ClientQt
+
+    Qt6::Widgets
 )
 
-target_link_libraries(appurania
-    PRIVATE
-    #OSMScout::OSMScout
-    #OSMScout::Map
-
-    Qt6::Quick
-    Qt6::Qml
-    Qt6::Gui
-    Qt6::QuickControls2
-    Qt6::Location
-    Qt6::Network
-    Qt6::Positioning
-
-    KF6::I18n
-    KF6::CoreAddons
-    KF6::IconThemes
+install(TARGETS urania
+    BUNDLE  DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-install(TARGETS appurania ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+qt_generate_deploy_app_script(
+    TARGET urania
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT ${deploy_script})
