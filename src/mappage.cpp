@@ -2,6 +2,7 @@
 #include "ui_mappage.h"
 
 #include "mapwidget.h"
+#include <osmscoutclientqt/SearchLocationModel.h>
 
 MapPage::MapPage(QWidget *parent) :
     QWidget(parent),
@@ -12,6 +13,45 @@ MapPage::MapPage(QWidget *parent) :
     map->lower();
     this->map = map;
     ui->infoPane->setVisible(false);
+
+    auto searchModel = new osmscout::LocationListModel(ui->searchResultsListView);
+    connect(ui->searchLineEdit, &QLineEdit::editingFinished,
+            searchModel, [this, searchModel]()
+    {
+        if (!ui->searchLineEdit->text().isEmpty())
+        {
+            searchModel->setPattern(ui->searchLineEdit->text());
+        }
+        else if (!searchModel->isSearching())
+        {
+            searchModel->removeRows(0, searchModel->rowCount());
+            ui->searchResultsStack->setCurrentWidget(ui->searchResultsInitialPage);
+        }
+    });
+    connect(searchModel, &osmscout::LocationListModel::SearchingChanged,
+            this, [this, searchModel](bool searching)
+    {
+        if (searching)
+        {
+            ui->searchResultsStack->setCurrentWidget(ui->searchResultsLoadingPage);
+        }
+        else if (searchModel->rowCount() == 0)
+        {
+            ui->searchResultsStack->setCurrentWidget(ui->searchResultsNothingFoundPage);
+        }
+        else
+        {
+            ui->searchResultsListView->scrollToTop();
+            ui->searchResultsStack->setCurrentWidget(ui->searchResultsDataPage);
+        }
+    });
+    connect(map, &MapWidget::centerChanged,
+            searchModel, [searchModel](const osmscout::GeoCoord &newCenter)
+    {
+        searchModel->SetLat(newCenter.GetLat());
+        searchModel->SetLon(newCenter.GetLon());
+    });
+    ui->searchResultsListView->setModel(searchModel);
 
     connect(ui->zoomInButton, &QPushButton::clicked,
             map, &MapWidget::zoomIn);

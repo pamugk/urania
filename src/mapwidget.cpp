@@ -51,27 +51,32 @@ void MapWidget::zoomOut()
 
 void MapWidget::keyPressEvent(QKeyEvent *event)
 {
+    bool movedMap = false;
     bool updatedModel = false;
     switch (event->key())
     {
         // Navigation
         case Qt::Key::Key_Left:
         {
+            movedMap = true;
             updatedModel = currentProjection.Move(-width() / 100., 0);
             break;
         }
         case Qt::Key::Key_Up:
         {
+            movedMap = true;
             updatedModel = currentProjection.Move(0, height() / 100.);
             break;
         }
         case Qt::Key::Key_Right:
         {
+            movedMap = true;
             updatedModel = currentProjection.Move(width() / 100., 0);
             break;
         }
         case Qt::Key::Key_Down:
         {
+            movedMap = true;
             updatedModel = currentProjection.Move(0, -height() / 100.);
             break;
         }
@@ -94,6 +99,10 @@ void MapWidget::keyPressEvent(QKeyEvent *event)
 
     if (updatedModel)
     {
+        if (movedMap)
+        {
+            emit centerChanged(currentProjection.GetCenter());
+        }
         update();
     }
 }
@@ -197,6 +206,7 @@ void MapWidget::wheelEvent(QWheelEvent *event)
 
     if (updatedModel)
     {
+        emit centerChanged(currentProjection.GetCenter());
         update();
     }
 }

@@ -12,6 +12,9 @@ public:
     explicit MapWidget(QWidget *parent = nullptr);
     ~MapWidget();
 
+signals:
+    void centerChanged(const osmscout::GeoCoord &newCenter);
+
 public slots:
     void zoomIn();
     void zoomOut();
